@@ -2,8 +2,10 @@ import turtle
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
-turtle.setup(1920,1080,50,0)
+tamanho_janela = 800
+turtle.setup(tamanho_janela+100,tamanho_janela+100,0,0)
 
 
 #Matriz adjacencia
@@ -14,11 +16,18 @@ A = np.array([[0,1,0,1,0,0],
               [1,0,0,1,0,0],
               [0,0,1,0,0,0]])
 
+# A = np.array([[0,0,0,1,0,0],
+#               [0,0,1,0,0,0],
+#               [0,1,0,0,0,0],
+#               [1,0,0,0,0,0],
+#               [1,0,0,1,0,0],
+#               [0,0,1,0,0,0]])
+
 #Tempo de simulação
-t_sim = 10
+t_sim = 200
 
 #Passo de integração
-h = 1
+h = 0.5
 
 #time series
 t = np.array([])
@@ -40,7 +49,7 @@ for i in range(n):
     robos[i] = turtle.Turtle()
     robos[i].shape("circle")
     robos[i].penup()
-    robos[i].color(1,1,1)
+    robos[i].color(0,0,0)
     #robos[i].color((np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255)))
 
 
@@ -50,9 +59,15 @@ m = 2
 #número de referências
 N = 1
 
-tamanho_janela = 800
 #informação inicial dos estados
-x0 = np.random.randint(-tamanho_janela,tamanho_janela,(n,m))
+x0 = np.random.randint(-200,200,(n,m))
+
+# x0 = np.array(  [[60,85],
+#                 [100,155],
+#                 [145,170],
+#                 [40,50],
+#                 [70,30],
+#                 [185,140]])
 
 for i in range(n):
     robos[i].setpos(x0[i])
@@ -60,7 +75,12 @@ for i in range(n):
 
 
 #referência
-r = np.array([0,10])
+#r = np.array([120,100])
+r = np.random.randint(-200,200,(1,2))
+referencia = turtle.Turtle()
+referencia.shape("square")
+referencia.penup()
+referencia.setpos(r[0])
 
 #matriz que representa quais robos sabem a referência
 B = np.array([0,0,1,0,0,0])
@@ -74,7 +94,7 @@ x[:, :, 0] = x0
 
 
 for k in range(n_steps-1):
-    print("{}%".format(k/(n_steps-1)*100))
+    #print("{}%".format(k/(n_steps-1)*100))
     for i in range(n):
 
         sum_i = 0
@@ -83,11 +103,12 @@ for k in range(n_steps-1):
             sum_i = sum_i + (x[j, :, k] - x[i, :, k])*A[i, j]
 
         for l in range(N):
-            sum_i = sum_i + (r[:] - x[i, :, k])*B[i]
+            sum_i = sum_i + (r[l,:] - x[i, :, k])*B[i]
 
+        x[i, :, k + 1] = x[i, :, k] + h*sum_i
         robos[i].setpos(x[i,:,k+1])
+        time.sleep(0.1)
 
-    x[i, :, k + 1] = x[i, :, k] + h*sum_i
     
         
 # plt.figure(1).suptitle("Robôs", fontsize=10)
