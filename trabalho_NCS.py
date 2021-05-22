@@ -2,11 +2,14 @@ import turtle
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 import time
 
 tamanho_janela = 800
 turtle.setup(tamanho_janela+100,tamanho_janela+100,0,0)
 
+screen = turtle.Screen()
+screen.colormode(255)
 
 #Matriz adjacencia
 A = np.array([[0,1,0,1,0,0],
@@ -36,7 +39,6 @@ for i in range(int(t_sim/h)):
     aux = aux+h
     t = np.append(t, aux)
 
-
 #número de iterações
 n_steps = len(t)
 
@@ -49,7 +51,12 @@ for i in range(n):
     robos[i] = turtle.Turtle()
     robos[i].shape("circle")
     robos[i].penup()
-    robos[i].color(0,0,0)
+    robos[i].color( random.randint(0, 255), 
+                    random.randint(0, 255), 
+                    random.randint(0, 255))
+    size = robos[i].turtlesize()
+    increase = tuple([0.8* num for num in size])
+    robos[i].turtlesize(*increase)
     #robos[i].color((np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255)))
 
 
