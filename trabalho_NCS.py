@@ -3,9 +3,6 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 
-#r1 = turtle.Turtle()
-#r1.shape("circle")
-#r1.setpos(100, 100)
 turtle.setup(1920,1080,50,0)
 
 
