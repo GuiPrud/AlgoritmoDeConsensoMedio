@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import random
 import time
 
+turtle.register_shape("x3.gif")
+
 tamanho_janela = 800
 turtle.setup(tamanho_janela+100,tamanho_janela+100,0,0)
 
@@ -18,13 +20,6 @@ A = np.array([[0,1,0,1,0,0],
               [1,0,0,0,0,0],
               [1,0,0,1,0,0],
               [0,0,1,0,0,0]])
-
-# A = np.array([[0,0,0,1,0,0],
-#               [0,0,1,0,0,0],
-#               [0,1,0,0,0,0],
-#               [1,0,0,0,0,0],
-#               [1,0,0,1,0,0],
-#               [0,0,1,0,0,0]])
 
 #Tempo de simulação
 t_sim = 200
@@ -57,8 +52,6 @@ for i in range(n):
     size = robos[i].turtlesize()
     increase = tuple([0.8* num for num in size])
     robos[i].turtlesize(*increase)
-    #robos[i].color((np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255)))
-
 
 #dimesão dos estados (coordenadas x e y)
 m = 2
@@ -69,32 +62,22 @@ N = 1
 #informação inicial dos estados
 x0 = np.random.randint(-200,200,(n,m))
 
-# x0 = np.array(  [[60,85],
-#                 [100,155],
-#                 [145,170],
-#                 [40,50],
-#                 [70,30],
-#                 [185,140]])
-
 for i in range(n):
     robos[i].setpos(x0[i])
     robos[i].pendown()
 
 
 #referência
-#r = np.array([120,100])
 r = np.random.randint(-200,200,(1,2))
 referencia = turtle.Turtle()
-referencia.shape("square")
+referencia.shape("x3.gif")
 referencia.penup()
 referencia.setpos(r[0])
 
 #matriz que representa quais robos sabem a referência
 B = np.array([0,0,1,0,0,0])
 
-
 #Algoritmo principal
-
 x = np.zeros((n,m,n_steps))
 
 x[:, :, 0] = x0
