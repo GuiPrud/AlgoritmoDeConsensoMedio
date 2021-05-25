@@ -60,7 +60,7 @@ B = np.array([0,1,0,0,0,1,0,1,0,0])
 m = 2
 
 # Número de referências
-N = 1
+N = 4
 
 # Informação inicial dos estados
 x0 = np.random.randint(-200,200,(n,m))
@@ -79,7 +79,7 @@ r = np.random.randint(-200,200,(N,2))
 x = np.zeros((n,m,n_steps))
 
 # Tipo de movimentação que a referência irá fazer
-desenho_referencia = "aleatorio"
+desenho_referencia = "quadrado"
 
 # Tamanho da aresta dos desenhos feitos pela referência
 aresta = 20
@@ -90,7 +90,6 @@ x[:, :, 0] = x0
 # Variáveis auxiliares
 movimenta_referencia = 2
 cont_iteracoes = 0
-v = 0
 
 robos = {}
 
@@ -119,19 +118,23 @@ for l in range(N):
     referencia[l].setpos(r[l,:])
 
 vertices = {}
-if desenho_referencia == "quadrado":
-    vertices[0] = r[l,:]
-    vertices[1] = [r[l,0],r[l,1]+aresta]
-    vertices[2] = [r[l,0]-aresta,r[l,1]+aresta]
-    vertices[3] = [r[l,0]-aresta,r[l,1]]
-elif desenho_referencia == "triangulo":
-    vertices[0] = r[l,:]
-    vertices[1] = [r[l,0]-aresta/2,r[l,1]+aresta*math.sqrt(3)/2]
-    vertices[2] = [r[l,0]-aresta,r[l,1]]
-elif desenho_referencia == "aleatorio":
-    vertices[0] = r[l,:]
-    for i in range(1, random.randint(1, 10)):
-        vertices[i] = [vertices[i-1][0]+aresta*random.uniform(0, 1),vertices[i-1][1]+aresta*random.uniform(0, 1)]
+v = {}
+for l in range(N):
+    v[l] = 0
+    vertices[l] = {}
+    if desenho_referencia == "quadrado":
+        vertices[l][0] = r[l,:]
+        vertices[l][1] = [r[l,0],r[l,1]+aresta]
+        vertices[l][2] = [r[l,0]-aresta,r[l,1]+aresta]
+        vertices[l][3] = [r[l,0]-aresta,r[l,1]]
+    elif desenho_referencia == "triangulo":
+        vertices[l][0] = r[l,:]
+        vertices[l][1] = [r[l,0]-aresta/2,r[l,1]+aresta*math.sqrt(3)/2]
+        vertices[l][2] = [r[l,0]-aresta,r[l,1]]
+    elif desenho_referencia == "aleatorio":
+        vertices[l][0] = r[l,:]
+        for i in range(1, random.randint(1, 10)):
+            vertices[l][i] = [vertices[l][i-1][0]+aresta*random.uniform(0, 1),vertices[l][i-1][1]+aresta*random.uniform(0, 1)]
 
 
 for k in range(n_steps-1):
@@ -158,12 +161,12 @@ for k in range(n_steps-1):
     if cont_iteracoes == movimenta_referencia:
         cont_iteracoes = 0
         for l in range(N):
-            if abs(referencia[l].position()[0] - vertices[v][0]) < 0.5 and abs(referencia[l].position()[1] - vertices[v][1]) < 0.5:
-                if v < len(vertices)-1:
-                    v += 1
+            if abs(referencia[l].position()[0] - vertices[l][v[l]][0]) < 0.5 and abs(referencia[l].position()[1] - vertices[l][v[l]][1]) < 0.5:
+                if v[l] < len(vertices[l])-1:
+                    v[l] += 1
                 else:
-                    v = 0
-                referencia[l].setheading(referencia[l].towards(vertices[v][0], vertices[v][1]))
+                    v[l] = 0
+                referencia[l].setheading(referencia[l].towards(vertices[l][v[l]][0], vertices[l][v[l]][1]))
             else:
                 referencia[l].forward(1)
 
