@@ -35,6 +35,8 @@ A = np.array([[0,1,0,1,0,0],
 
 
 
+
+
 # Tempo de simulação
 t_sim = 100
 
@@ -61,7 +63,9 @@ B = np.array([0,0,1,0,0,0,0,0,0,0])
 m = 2
 
 # Número de referências
-N = 1
+N = 5
+
+alcance_dos_robos = 200
 
 alcance_dos_robos = 200
 
