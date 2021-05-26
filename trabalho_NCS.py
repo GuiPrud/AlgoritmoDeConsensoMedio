@@ -63,7 +63,7 @@ B = np.array([0,0,1,0,0,0,0,0,0,0])
 m = 2
 
 # Número de referências
-N = 5
+N = 1
 
 alcance_dos_robos = 200
 
@@ -107,7 +107,7 @@ robos = {}
 
 for i in range(n):
     robos[i] = turtle.Turtle()
-    robos[i].pen(pensize=3)
+    robos[i].pen(pensize=2)
     robos[i].shape("circle")
     if B[i] == 1:
         robos[i].shape("square")
