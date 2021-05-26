@@ -8,12 +8,11 @@ import time
 
 turtle.register_shape("x3.gif")
 
-tamanho_janela = 800
+tamanho_janela = 700
 turtle.setup(tamanho_janela+100,tamanho_janela+100,0,0)
 
 screen = turtle.Screen()
 screen.colormode(255)
-
 
 # Matriz adjacencia
 A = np.array([[0,1,0,1,0,0],
@@ -23,22 +22,24 @@ A = np.array([[0,1,0,1,0,0],
               [1,0,0,1,0,0],
               [0,0,1,0,0,0]])
 
-A = np.array([[0,1,0,0,0,0,0,1,0,0],
-              [1,0,0,0,1,1,0,1,0,0],
-              [0,0,0,0,0,0,1,0,1,1],
-              [0,0,0,0,1,1,0,1,0,0],
-              [0,1,0,1,0,1,0,1,0,0],
-              [0,1,0,1,1,0,0,1,0,0],
-              [0,0,1,0,0,0,0,0,1,0],
-              [1,1,0,1,1,1,0,0,0,0],
-              [0,0,1,0,0,0,1,0,0,1],
-              [0,0,1,0,0,0,0,0,1,0]])
+# A = np.array([[0,1,0,0,0,0,0,1,0,0],
+#               [1,0,0,0,1,1,0,1,0,0],
+#               [0,0,0,0,0,0,1,0,1,1],
+#               [0,0,0,0,1,1,0,1,0,0],
+#               [0,1,0,1,0,1,0,1,0,0],
+#               [0,1,0,1,1,0,0,1,0,0],
+#               [0,0,1,0,0,0,0,0,1,0],
+#               [1,1,0,1,1,1,0,0,0,0],
+#               [0,0,1,0,0,0,1,0,0,1],
+#               [0,0,1,0,0,0,0,0,1,0]])
+
+
 
 # Tempo de simulação
 t_sim = 100
 
 # Passo de integração
-h = 0.075
+h = 0.05
 
 # Time series
 t = np.array([])
@@ -54,7 +55,7 @@ n_steps = len(t)
 n = A.shape[0]
 
 # Matriz que representa quais robos sabem a referência
-B = np.array([0,1,0,0,0,1,0,1,0,0])
+B = np.array([0,0,1,0,0,0,0,0,0,0])
 
 # Dimesão dos estados (coordenadas x e y)
 m = 2
@@ -62,8 +63,10 @@ m = 2
 # Número de referências
 N = 1
 
+alcance_dos_robos = 200
+
 # Informação inicial dos estados
-x0 = np.random.randint(-200,200,(n,m))
+x0 = np.random.randint(-alcance_dos_robos,alcance_dos_robos,(n,m))
 
 # Indica se o raio de comunicação é levado em consideração
 topologia_dinamica = True
@@ -73,29 +76,34 @@ raio = np.array([70, 90, 50, 50, 30, 30, 70, 90, 50, 50])
 raio = raio*3
 
 # Referência
-r = np.random.randint(-200,200,(N,2))
+r = np.random.randint(-alcance_dos_robos,alcance_dos_robos,(N,2))
 
 # Algoritmo principal
 x = np.zeros((n,m,n_steps))
 
 # Tipo de movimentação que a referência irá fazer
-desenho_referencia = "aleatorio"
+desenho_referencia = "quadrado"
 
 # Tamanho da aresta dos desenhos feitos pela referência
-aresta = 20
+aresta = 80
 
 # Atribui a posição inicial para os robôs
 x[:, :, 0] = x0
 
 # Variáveis auxiliares
-movimenta_referencia = 2
+movimenta_referencia = True
+
+iteracoes_para_movimento = 2
+
 cont_iteracoes = 0
-v = 0
+
+velocidade_referencia = 2
 
 robos = {}
 
 for i in range(n):
     robos[i] = turtle.Turtle()
+    robos[i].pen(pensize=3)
     robos[i].shape("circle")
     if B[i] == 1:
         robos[i].shape("square")
@@ -119,20 +127,42 @@ for l in range(N):
     referencia[l].setpos(r[l,:])
 
 vertices = {}
-if desenho_referencia == "quadrado":
-    vertices[0] = r[l,:]
-    vertices[1] = [r[l,0],r[l,1]+aresta]
-    vertices[2] = [r[l,0]-aresta,r[l,1]+aresta]
-    vertices[3] = [r[l,0]-aresta,r[l,1]]
-elif desenho_referencia == "triangulo":
-    vertices[0] = r[l,:]
-    vertices[1] = [r[l,0]-aresta/2,r[l,1]+aresta*math.sqrt(3)/2]
-    vertices[2] = [r[l,0]-aresta,r[l,1]]
-elif desenho_referencia == "aleatorio":
-    vertices[0] = r[l,:]
-    for i in range(1, random.randint(1, 10)):
-        vertices[i] = [vertices[i-1][0]+aresta*random.uniform(0, 1),vertices[i-1][1]+aresta*random.uniform(0, 1)]
+v = {}
+for l in range(N):
+    v[l] = 0
+    vertices[l] = {}
+    if desenho_referencia == "quadrado":
+        vertices[l][0] = r[l,:]
+        vertices[l][1] = [r[l,0],r[l,1]+aresta]
+        vertices[l][2] = [r[l,0]-aresta,r[l,1]+aresta]
+        vertices[l][3] = [r[l,0]-aresta,r[l,1]]
+    elif desenho_referencia == "triangulo":
+        vertices[l][0] = r[l,:]
+        vertices[l][1] = [r[l,0]-aresta/2,r[l,1]+aresta*math.sqrt(3)/2]
+        vertices[l][2] = [r[l,0]-aresta,r[l,1]]
+    elif desenho_referencia == "aleatorio":
+        vertices[l][0] = r[l,:]
+        for i in range(1, random.randint(1, 10)):
+            vertices[l][i] = [r[l,0]+aresta*random.uniform(0, 1),r[l,1]+aresta*random.uniform(0, 1)]
 
+tRadiumDrawer = turtle.Turtle()
+tRadiumDrawer.speed(0)
+tRadiumDrawer.shapesize(0.001,0.001)
+tRadiumDrawer.penup()
+for robo in range(n):
+    radiun = raio[robo]
+    tRadiumDrawer.setpos(robos[robo].pos()[0],robos[robo].pos()[1]+8)
+    tRadiumDrawer.write("{}".format(robo),font=('Arial',10,'normal'))
+    tRadiumDrawer.setpos(robos[robo].pos()[0],robos[robo].pos()[1]-radiun)
+    tRadiumDrawer.pendown()
+
+  #  tRadiumDrawer.pencolor(robos[robo].getcolor())
+    tRadiumDrawer.circle(radiun)
+    tRadiumDrawer.penup()
+
+time.sleep(10)
+
+tRadiumDrawer.clear()
 
 for k in range(n_steps-1):
     for i in range(n):
@@ -155,16 +185,16 @@ for k in range(n_steps-1):
 
     cont_iteracoes += 1
 
-    if cont_iteracoes == movimenta_referencia:
+    if cont_iteracoes == iteracoes_para_movimento and movimenta_referencia:
         cont_iteracoes = 0
         for l in range(N):
-            if abs(referencia[l].position()[0] - vertices[v][0]) < 0.5 and abs(referencia[l].position()[1] - vertices[v][1]) < 0.5:
-                if v < len(vertices)-1:
-                    v += 1
+            if abs(referencia[l].position()[0] - vertices[l][v[l]][0]) < 0.5 and abs(referencia[l].position()[1] - vertices[l][v[l]][1]) < 0.5:
+                if v[l] < len(vertices[l])-1:
+                    v[l] += 1
                 else:
-                    v = 0
-                referencia[l].setheading(referencia[l].towards(vertices[v][0], vertices[v][1]))
+                    v[l] = 0
+                referencia[l].setheading(referencia[l].towards(vertices[l][v[l]][0], vertices[l][v[l]][1]))
             else:
-                referencia[l].forward(1)
+                referencia[l].forward(velocidade_referencia)
 
 screen.exitonclick()
